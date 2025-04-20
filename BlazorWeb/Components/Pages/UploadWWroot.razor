@@ -1,0 +1,45 @@
+﻿@page "/uploadRoot"
+<h3>UploadWWWRoot</h3>
+
+<InputFile OnChange="FileSelect" accept=".jpg, .jpeg, .tiff" />
+<button @onclick="UploadFile">Upload</button>
+<p>@message</p>
+@code {
+    private IBrowserFile browserFile;
+    private string message;
+
+    private async Task FileSelect(InputFileChangeEventArgs inputFile)
+    {
+        browserFile = inputFile.File;
+    }
+    private async Task UploadFile()
+    {
+        if (browserFile == null)
+        {
+            message = "Hay input file truoc khi update.";
+        }
+        else
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+                //message = "Đã tạo thư mục uploads trong wwwroot. ";
+                var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), uploadsFolder, browserFile.Name);
+                using (var stream = new FileStream(uploadsFile, FileMode.Create))
+                {
+                    await browserFile.OpenReadStream().CopyToAsync(stream);
+                }
+            }
+            else
+            {
+                message = "folder Da ton tai.";
+                var uploadsFile = Path.Combine(Directory.GetCurrentDirectory(), uploadsFolder, browserFile.Name);
+                using (var stream = new FileStream(uploadsFile, FileMode.Create))
+                {
+                    await browserFile.OpenReadStream().CopyToAsync(stream);
+                }
+            }
+        }
+    }
+}
